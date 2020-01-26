@@ -49,4 +49,15 @@ router.put("/:userId/punches/:punchId", async (req, res) => {
   }
 })
 
+router.delete("/:userId/punches/:punchId", async (req, res) => {
+  try {
+    await User.removePunch(req.params.userId, req.params.punchId)
+    res.send("Punch deleted")
+  } catch (error) {
+    debug("Error trying to delete punch. %s", error.message)
+    res.status(400)
+    res.end()
+  }
+})
+
 module.exports = router;

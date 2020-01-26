@@ -38,4 +38,10 @@ userSchema.static("updatePunch", async function(
   return user.save();
 });
 
+userSchema.static("removePunch", async function(userId, punchId) {
+  const user = await this.findById(userId);
+  user.punches.id(punchId).remove();
+  return user.save();
+});
+
 module.exports = mongoose.model("User", userSchema);
