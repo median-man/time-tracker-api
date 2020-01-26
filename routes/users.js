@@ -34,4 +34,19 @@ router.post("/:id/punches", async (req, res) => {
   }
 });
 
+router.put("/:userId/punches/:punchId", async (req, res) => {
+  try {
+    await User.updatePunch(req.params.userId, {
+      id: req.params.punchId,
+      type: req.body.type,
+      timeStamp: req.body.timeStamp
+    })
+    res.send("Punch updated")
+  } catch (error) {
+    debug("Error trying to update punch. %s", error.message)
+    res.status(400)
+    res.end()
+  }
+})
+
 module.exports = router;

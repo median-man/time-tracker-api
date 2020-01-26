@@ -11,15 +11,31 @@ const punchSchema = new Schema({
     type: Number,
     required: true
   }
-})
+});
 
 const userSchema = new Schema({
   punches: [punchSchema]
 });
 
 userSchema.static("createPunch", function(userId, newPunch, options) {
-  console.log(userId, newPunch, options)
-  return this.findByIdAndUpdate(userId, { $push: { punches: newPunch }}, options)
-})
+  console.log(userId, newPunch, options);
+  return this.findByIdAndUpdate(
+    userId,
+    { $push: { punches: newPunch } },
+    options
+  );
+});
+
+userSchema.static("updatePunch", async function(
+  userId,
+  { id, type, timeStamp },
+  options
+) {
+  const user = await this.findById(userId);
+  const punch = user.punches.id(id);
+  punch.type = type;
+  punch.timeStamp = timeStamp;
+  return user.save();
+});
 
 module.exports = mongoose.model("User", userSchema);
