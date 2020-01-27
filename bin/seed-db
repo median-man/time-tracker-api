@@ -21,8 +21,10 @@ db.connect()
   })
   .then(async () => {
     await User.deleteMany({});
-    const result = await User.insertMany([
+    const result = await User.create([
       {
+        email: "user1@test.com",
+        password: "Password1234",
         punches: [
           {
             type: "in",

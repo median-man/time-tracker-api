@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-const { Schema, SchemaTypes } = mongoose;
+const bcrypt = require("bcrypt");
+
+const { Schema } = mongoose;
 
 const punchSchema = new Schema({
   type: {
@@ -14,6 +16,18 @@ const punchSchema = new Schema({
 });
 
 const userSchema = new Schema({
+  email: {
+    type: String,
+    unique: true,
+    required: true,
+    match: /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/,
+    lowercase: true
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false
+  },
   punches: [punchSchema]
 });
 
@@ -43,5 +57,18 @@ userSchema.static("removePunch", async function(userId, punchId) {
   user.punches.id(punchId).remove();
   return user.save();
 });
+
+// Execute before each user.save() call
+userSchema.pre("save", async function() {
+  // Break out if the password hasn't changed
+  if (this.isModified("password")) {
+    const hash = await bcrypt.hash(this.password, 11);
+    this.password = hash;
+  }
+});
+
+userSchema.methods.verifyPassword = async function(password) {
+  return bcrypt.compare(password, this.password);
+};
 
 module.exports = mongoose.model("User", userSchema);

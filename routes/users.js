@@ -1,13 +1,16 @@
 const express = require("express");
 const debug = require("debug")("time-tracker-api:server");
 const User = require("../models/User");
+const auth = require("../config/auth");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const users = await User.find({});
-  res.json(users);
-});
+router.use(auth.isAuthenticated());
+
+// router.get("/", async (req, res) => {
+//   const users = await User.find({});
+//   res.json(users);
+// });
 
 // get user by the user id
 router.get("/:id", async (req, res) => {
@@ -40,24 +43,24 @@ router.put("/:userId/punches/:punchId", async (req, res) => {
       id: req.params.punchId,
       type: req.body.type,
       timeStamp: req.body.timeStamp
-    })
-    res.send("Punch updated")
+    });
+    res.send("Punch updated");
   } catch (error) {
-    debug("Error trying to update punch. %s", error.message)
-    res.status(400)
-    res.end()
+    debug("Error trying to update punch. %s", error.message);
+    res.status(400);
+    res.end();
   }
-})
+});
 
 router.delete("/:userId/punches/:punchId", async (req, res) => {
   try {
-    await User.removePunch(req.params.userId, req.params.punchId)
-    res.send("Punch deleted")
+    await User.removePunch(req.params.userId, req.params.punchId);
+    res.send("Punch deleted");
   } catch (error) {
-    debug("Error trying to delete punch. %s", error.message)
-    res.status(400)
-    res.end()
+    debug("Error trying to delete punch. %s", error.message);
+    res.status(400);
+    res.end();
   }
-})
+});
 
 module.exports = router;

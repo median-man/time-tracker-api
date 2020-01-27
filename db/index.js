@@ -11,7 +11,8 @@ module.exports.connect = () => {
       process.env.MONGODB_URI || "mongodb://localhost/timetracker",
       {
         useNewUrlParser: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useCreateIndex: true
       }
     );
   }
