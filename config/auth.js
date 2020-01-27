@@ -30,8 +30,10 @@ exports.logUserIn = async function(email, password) {
   return {
     token,
     user: {
-      ...user.toObject(),
-      password: null
+      ...user.toObject(o => {
+        delete o.password;
+        return o;
+      })
     }
   };
 };
