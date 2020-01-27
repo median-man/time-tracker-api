@@ -3,12 +3,19 @@ const jwt = require("jsonwebtoken");
 const debug = require("debug")("time-tracker-api:server:auth");
 const User = require("../models/User");
 
-// Init the express-jwt middleware
+const AUDIENCE = "hours-summary";
+const ISSUER = "time-tracker-api";
+
+// Create token verification middleware
 exports.isAuthenticated = () =>
   exjwt({
-    secret: process.env.SERVER_SECRET
+    requestProperty: "auth",
+    secret: process.env.SERVER_SECRET,
+    audience: AUDIENCE,
+    issuer: ISSUER
   });
 
+// Authenticate user and create jwt
 exports.logUserIn = async function(email, password) {
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
@@ -21,19 +28,18 @@ exports.logUserIn = async function(email, password) {
     throw new Error("Invalid username or password.");
   }
 
-  let token = jwt.sign(
-    { id: user._id, email: user.email },
-    process.env.SERVER_SECRET,
-    { expiresIn: 129600 }
-  );
+  const now = Math.floor(Date.now() / 1000);
+  const oneDayFromNow = now + 60 * 60 * 24;
 
-  return {
-    token,
-    user: {
-      ...user.toObject(o => {
-        delete o.password;
-        return o;
-      })
-    }
+  const claims = {
+    exp: oneDayFromNow,
+    iat: now,
+    sub: user._id,
+    iss: ISSUER,
+    aud: AUDIENCE
   };
+
+  const token = jwt.sign(claims, process.env.SERVER_SECRET);
+
+  return { token, user };
 };

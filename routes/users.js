@@ -7,10 +7,14 @@ const router = express.Router();
 
 router.use(auth.isAuthenticated());
 
-// router.get("/", async (req, res) => {
-//   const users = await User.find({});
-//   res.json(users);
-// });
+router.use("/:id", (req, res, next) => {
+  // user is only authorized to access own data
+  if (req.auth.sub === req.params.id) {
+    next();
+  } else {
+    res.status(403).send("Insufficient permissions.");
+  }
+});
 
 // get user by the user id
 router.get("/:id", async (req, res) => {
