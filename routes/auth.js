@@ -22,15 +22,20 @@ router.post("/signup", async (req, res) => {
     });
     res.json(user);
   } catch (error) {
-    debug("Error: %O", error)
+    debug("Error: %O", error);
     if (error.name && error.name === "ValidatorError") {
-      res.status(401).send("Invalid or missing email or password.")
+      res.status(401).send("Invalid or missing email or password.");
+      return;
     }
-    const DUPLICATE_KEY_ERROR_CODE = 11000
-    if (error.name === "MongoError" && error.code === DUPLICATE_KEY_ERROR_CODE) {
-      res.status(403).send("Email must be unique.")
+    const DUPLICATE_KEY_ERROR_CODE = 11000;
+    if (
+      error.name === "MongoError" &&
+      error.code === DUPLICATE_KEY_ERROR_CODE
+    ) {
+      res.status(403).send("Email must be unique.");
+      return;
     }
-    res.status(400).send("Unknown error.")
+    res.status(400).send("Unknown error.");
   }
 });
 
